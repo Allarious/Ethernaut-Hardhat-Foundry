@@ -4,9 +4,9 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 
 describe("Dex Exploit", function () {
   var deployer: SignerWithAddress, attacker: SignerWithAddress;
-  const INITIAL_MINT_TOKEN = ethers.utils.parseEther('10000000');
-  const INITIAL_DEX_BALANCE = ethers.utils.parseEther('100');
-  const INITIAL_ATTACKER_BALANCE = ethers.utils.parseEther('10');
+  const INITIAL_MINT_TOKEN = ethers.utils.parseEther("10000000");
+  const INITIAL_DEX_BALANCE = ethers.utils.parseEther("100");
+  const INITIAL_ATTACKER_BALANCE = ethers.utils.parseEther("10");
   before(async function () {
     [deployer, attacker] = await ethers.getSigners();
 
@@ -37,18 +37,26 @@ describe("Dex Exploit", function () {
     expect(await this.dex.token2()).to.be.eq(this.token2.address);
   });
 
-  it("Should have attacker balances set correctly", async function checkAttackerBalance(){
-    expect(await this.token1.balanceOf(attacker.address)).to.eq(INITIAL_ATTACKER_BALANCE);
-    expect(await this.token2.balanceOf(attacker.address)).to.eq(INITIAL_ATTACKER_BALANCE);
-  })
+  it("Should have attacker balances set correctly", async function checkAttackerBalance() {
+    expect(await this.token1.balanceOf(attacker.address)).to.eq(
+      INITIAL_ATTACKER_BALANCE
+    );
+    expect(await this.token2.balanceOf(attacker.address)).to.eq(
+      INITIAL_ATTACKER_BALANCE
+    );
+  });
 
-  it("Should have Dex balance set correctly", async function checkDexBalance(){
-    expect(await this.token1.balanceOf(this.dex.address)).to.eq(INITIAL_DEX_BALANCE); 
-    expect(await this.token2.balanceOf(this.dex.address)).to.eq(INITIAL_DEX_BALANCE);
-  })
-  it("Should Exploit", async function exploit(){
+  it("Should have Dex balance set correctly", async function checkDexBalance() {
+    expect(await this.token1.balanceOf(this.dex.address)).to.eq(
+      INITIAL_DEX_BALANCE
+    );
+    expect(await this.token2.balanceOf(this.dex.address)).to.eq(
+      INITIAL_DEX_BALANCE
+    );
+  });
+  it("Should Exploit", async function exploit() {
     /**
      * Your Exploit code here!
      */
-  })
+  });
 });
