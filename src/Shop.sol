@@ -22,9 +22,7 @@ contract Shop {
 }
 
 contract ShopExploit {
-    uint priceAmount = 101;
     Shop victim;
-
 
     constructor(address _victim){
         victim = Shop(_victim);
