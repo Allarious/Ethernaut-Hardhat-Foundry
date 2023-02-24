@@ -1,6 +1,8 @@
 # <h1 align="center">Answers and setups of Ethernaut challenges</h1>
 
-To help you focus on the Ethernaut challenges itself, here are some of the challenges setup in hardhat environment (inspired by [damn vulnerable defi](https://www.damnvulnerabledefi.xyz/))
+**Contributions are welcome**
+
+To help you focus on the [Ethernaut](https://ethernaut.openzeppelin.com/) challenges itself, here are some of the challenges setup in hardhat environment (inspired by [damn vulnerable defi](https://www.damnvulnerabledefi.xyz/))
 Currently, two contract setups are provided:
 
 - Dex
